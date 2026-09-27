@@ -89,26 +89,6 @@ export async function renderPosterToBuffer(options: RenderOptions): Promise<Buff
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
   }
 
-  if (aiConfig?.motifStyle === 'flag') {
-    ctx.save();
-    ctx.fillStyle = 'rgba(224, 43, 43, 0.85)';
-    ctx.beginPath();
-    ctx.arc(WIDTH / 2, 320, 260, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  } else if (aiConfig?.motifStyle === 'sunburst') {
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-    for (let i = 0; i < 16; i++) {
-      const angle = (i * Math.PI * 2) / 16;
-      ctx.beginPath();
-      ctx.moveTo(WIDTH / 2, 320);
-      ctx.arc(WIDTH / 2, 320, 1000, angle, angle + 0.12);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
   const roseImgPath = path.join(process.cwd(), 'src', 'assets', 'symbols', 'rose.png');
   const roseStartY = 160;
   const roseEndY = HEIGHT - 280;
