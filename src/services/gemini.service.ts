@@ -27,9 +27,15 @@ export async function generatePosterDesignConfig(
   const randomGrid =
     gridOptions[Math.floor(Math.random() * gridOptions.length)];
 
+  const banglaOccasionMap: Record<string, string> = {
+    'victory-day': 'মহান বিজয় দিবস',
+    condolence: 'শোকবার্তা',
+    campaign: 'জনস্বার্থে প্রচার',
+  };
+
   try {
     const model = genAI.getGenerativeModel({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         responseMimeType: 'application/json',
       },
@@ -38,13 +44,14 @@ export async function generatePosterDesignConfig(
     const prompt = `
 You are an expert Bangladeshi poster designer.
 
-Your job is to provide poster design assistance while strictly preserving user-provided information.
+Your job is to provide poster design assistance while strictly preserving
+user-provided information.
 
 STRICT LANGUAGE RULES:
 1. All AI-generated visible text MUST be written in Bengali (বাংলা) script.
-2. NEVER generate English text for any AI-generated visible poster content.
+2. NEVER generate English text for AI-generated visible poster content.
 3. Translate the occasion into natural Bengali only when generating badgeText.
-4. The supporting subline MUST be written in Bengali.
+4. suggestedSubline MUST be written in Bengali.
 5. badgeText MUST contain Bengali only.
 6. suggestedSubline MUST contain Bengali only.
 7. Do NOT transliterate English words into Bangla unless there is no natural Bengali equivalent.
@@ -57,12 +64,13 @@ CRITICAL MAIN HEADLINE RULE:
 3. NEVER rewrite the Main Headline.
 4. NEVER paraphrase the Main Headline.
 5. NEVER correct the Main Headline.
-6. NEVER shorten or expand the Main Headline.
-7. NEVER add or remove any words from the Main Headline.
-8. Preserve the Main Headline EXACTLY as provided by the user.
-9. Preserve every Bengali character, word, punctuation mark, number, symbol, space, and line of the Main Headline.
-10. The value of "formattedHeadline" MUST be an EXACT COPY of the user's Main Headline.
-11. Do not generate a new headline under any circumstances.
+6. NEVER shorten the Main Headline.
+7. NEVER expand the Main Headline.
+8. NEVER add or remove any words.
+9. Preserve every Bengali character, English character, number,
+   punctuation mark, symbol, space, and line exactly.
+10. formattedHeadline MUST be an exact copy of the user's Main Headline.
+11. Do not generate a replacement headline.
 
 OCCASION TRANSLATION:
 - victory-day → মহান বিজয় দিবস
@@ -74,25 +82,26 @@ Never display the raw internal occasion value on the poster.
 
 INPUT:
 - Occasion: "${occasion}"
-- Main Headline — COPY EXACTLY, DO NOT MODIFY: "${headline}"
+- Main Headline: "${headline}"
 - Party / Organization: "${party}"
 
 COLOR RULES:
 1. Choose a coherent color palette appropriate for the selected occasion.
 2. The colors must match the emotional and visual character of the occasion.
-3. For "condolence":
-   - Use black, charcoal, dark grey, grey, white, or other muted neutral colors.
-   - Prefer dark and neutral colors for the main background.
-   - Avoid bright, festive, neon, or highly saturated colors.
-   - Keep the design respectful, solemn, minimal, and subdued.
-4. For "victory-day":
-   - Prefer deep green, red, white, and subtle gold accents.
-   - Keep the palette balanced and suitable for a national commemorative poster.
-5. For "campaign":
-   - Use a professional, high-contrast palette appropriate for a poster.
-   - Avoid random colors that conflict with the selected occasion.
-6. The three returned colors MUST work together as one coherent palette.
-7. Do not choose random colors when the occasion clearly suggests a specific visual palette.
+
+For "condolence":
+- Use black, charcoal, dark grey, grey, white, or muted neutral colors.
+- Prefer dark and neutral colors for the main background.
+- Avoid bright, festive, neon, or highly saturated colors.
+- Keep the design respectful, solemn, minimal, and subdued.
+
+For "victory-day":
+- Prefer deep green, red, white, and subtle gold accents.
+- Keep the palette balanced and suitable for a national commemorative poster.
+
+For "campaign":
+- Use a professional, high-contrast palette.
+- Avoid random colors that conflict with the selected occasion.
 
 LAYOUT RULES:
 1. Choose a gridStyle that works well with the selected occasion and content.
@@ -118,12 +127,12 @@ Return exactly this schema:
   "motifStyle": "floral"
 }
 
-FINAL CHECK BEFORE RETURNING JSON:
-- formattedHeadline MUST exactly equal the user's Main Headline.
-- Do not modify even one character of the Main Headline.
-- Translate the Main Headline to bangla if it is in english.
+FINAL CHECK:
+- formattedHeadline must exactly match the user's Main Headline.
+- Do not translate the Main Headline.
+- Do not modify the Main Headline.
 - Do not invent a replacement headline.
-- All AI-generated text must follow the Bengali language rules.
+- All AI-generated text must be Bengali.
 - Colors must match the occasion.
 - motifStyle must be "floral".
 `;
@@ -134,6 +143,10 @@ FINAL CHECK BEFORE RETURNING JSON:
 
     return {
       ...parsed,
+
+      // NEVER trust the AI with the user's original headline.
+      formattedHeadline: headline || 'শুভেচ্ছা ও অভিনন্দন',
+
       motifStyle: 'floral',
     };
   } catch (error) {
@@ -142,25 +155,37 @@ FINAL CHECK BEFORE RETURNING JSON:
       error
     );
 
-    const banglaOccasionMap: Record<string, string> = {
-      'victory-day': 'মহান বিজয় দিবস',
-      condolence: 'শোকবার্তা',
-      campaign: 'জনস্বার্থে প্রচার',
-    };
-
     return {
       badgeText:
         banglaOccasionMap[occasion] || 'শুভেচ্ছা বার্তা',
 
+      // Preserve the user's headline even when Gemini fails.
       formattedHeadline:
         headline || 'শুভেচ্ছা ও অভিনন্দন',
 
       suggestedSubline:
         'শুভেচ্ছা ও সৌহার্দ্যের বার্তা',
 
-      primaryAccentColor: '#006A4E',
-      secondaryAccentColor: '#F42A41',
-      tertiaryAccentColor: '#FFD700',
+      primaryAccentColor:
+        occasion === 'condolence'
+          ? '#2F2F2F'
+          : occasion === 'victory-day'
+            ? '#006A4E'
+            : '#4F5B2A',
+
+      secondaryAccentColor:
+        occasion === 'condolence'
+          ? '#6B6B6B'
+          : occasion === 'victory-day'
+            ? '#F42A41'
+            : '#B8892D',
+
+      tertiaryAccentColor:
+        occasion === 'condolence'
+          ? '#E5E5E5'
+          : occasion === 'victory-day'
+            ? '#FFD700'
+            : '#D8C9A8',
 
       gridStyle: randomGrid,
       motifStyle: 'floral',
