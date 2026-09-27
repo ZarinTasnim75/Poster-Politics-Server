@@ -12,48 +12,48 @@ const seedTemplates = async (): Promise<void> => {
     await Template.deleteMany({});
 
     const templates = [
-      {
-        title: "Victory Day",
-        occasionType: "victory-day",
-        thumbnailUrl: "",
-        layoutConfig: {
-          photoSlots: 3,
-          photoArrangement: "three-top",
-          headlinePosition: "center",
-          footerPosition: "bottom",
-          theme: "red-green",
-        },
-        isActive: true,
-      },
+  {
+    title: "মহান বিজয় দিবস",
+    occasionType: "victory-day",
+    thumbnailUrl: "",
+    layoutConfig: {
+      photoSlots: 3,
+      photoArrangement: "three-top",
+      headlinePosition: "center",
+      footerPosition: "bottom",
+      theme: "red-green",
+    },
+    isActive: true,
+  },
 
-      {
-        title: "Condolence & Tribute",
-        occasionType: "condolence",
-        thumbnailUrl: "",
-        layoutConfig: {
-          photoSlots: 2,
-          photoArrangement: "two-side",
-          headlinePosition: "top",
-          footerPosition: "bottom",
-          theme: "black-white",
-        },
-        isActive: true,
-      },
+  {
+    title: "শোকবার্তা ও শ্রদ্ধাঞ্জলি",
+    occasionType: "condolence",
+    thumbnailUrl: "",
+    layoutConfig: {
+      photoSlots: 2,
+      photoArrangement: "two-side",
+      headlinePosition: "top",
+      footerPosition: "bottom",
+      theme: "black-white",
+    },
+    isActive: true,
+  },
 
-      {
-        title: "Publicity Poster",
-        occasionType: "campaign",
-        thumbnailUrl: "",
-        layoutConfig: {
-          photoSlots: 3,
-          photoArrangement: "main-center-two-side",
-          headlinePosition: "top",
-          footerPosition: "bottom",
-          theme: "red-green",
-        },
-        isActive: true,
-      },
-    ];
+  {
+    title: "জনস্বার্থে প্রচার",
+    occasionType: "campaign",
+    thumbnailUrl: "",
+    layoutConfig: {
+      photoSlots: 3,
+      photoArrangement: "main-center-two-side",
+      headlinePosition: "top",
+      footerPosition: "bottom",
+      theme: "red-green",
+    },
+    isActive: true,
+  },
+];
 
     await Template.insertMany(templates);
 

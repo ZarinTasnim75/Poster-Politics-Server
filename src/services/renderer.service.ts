@@ -232,10 +232,30 @@ export async function renderPosterToBuffer(options: RenderOptions): Promise<Buff
   ctx.roundRect(306, 51, 588, 68, [34]);
   ctx.fill();
 
-  ctx.font = `bold 32px "${FONT_NAME}"`;
+  ctx.font = `bold 42px "${FONT_NAME}"`;
   ctx.textAlign = 'center';
-  const topBadgeText = aiConfig?.badgeText || formData.occasion || 'শুভেচ্ছা বার্তা';
-  drawStrokedText(ctx, topBadgeText, WIDTH / 2, 96, '#FFD700', '#000000', 4, 560);
+
+  const occasionMap: Record<string, string> = {
+    'victory-day': 'মহান বিজয় দিবস',
+    condolence: 'শোকবার্তা',
+    campaign: 'জনস্বার্থে প্রচার',
+  };
+
+  const topBadgeText =
+    aiConfig?.badgeText ||
+    occasionMap[formData.occasion] ||
+    'শুভেচ্ছা বার্তা';
+
+  drawStrokedText(
+    ctx,
+    topBadgeText,
+    WIDTH / 2,
+    102,
+    '#FFD700',
+    '#000000',
+    5,
+    560
+  );
 
   const photos = options.photoUrls || [];
   if (photos.length > 0) {
@@ -269,10 +289,10 @@ export async function renderPosterToBuffer(options: RenderOptions): Promise<Buff
     }
   }
 
-  const headlineY = 660;
+  const headlineY = 680;
   ctx.textAlign = 'center';
 
-  ctx.font = `bold 64px "${FONT_NAME}"`;
+  ctx.font = `bold 78px "${FONT_NAME}"`;
   const mainHeadline = aiConfig?.formattedHeadline || formData.headline || 'শুভেচ্ছা ও অভিনন্দন';
 
   drawStrokedText(
@@ -282,26 +302,27 @@ export async function renderPosterToBuffer(options: RenderOptions): Promise<Buff
     headlineY,
     '#FFD700',
     '#8B0000',
-    12,
-    880
+    14,
+    900
   );
 
   const sublineText =
     aiConfig?.suggestedSubline ||
     formData.subline ||
-    'একত্রে দেশ গড়ার অঙ্গীকার';
+    'শুভেচ্ছা ও সৌহার্দ্যের বার্তা';
 
   if (sublineText) {
-    ctx.font = `bold 32px "${FONT_NAME}"`;
+    ctx.font = `bold 40px "${FONT_NAME}"`;
+
     drawStrokedText(
       ctx,
-      `"${sublineText.replace(/"/g, '')}"`,
+      sublineText.replace(/"/g, ''),
       WIDTH / 2 + 20,
-      headlineY + 80,
+      headlineY + 95,
       '#FFFFFF',
       '#000000',
-      4,
-      820
+      5,
+      860
     );
   }
 
@@ -324,15 +345,15 @@ export async function renderPosterToBuffer(options: RenderOptions): Promise<Buff
   ctx.fill();
 
   ctx.fillStyle = '#000000';
-  ctx.font = `bold 22px "${FONT_NAME}"`;
+  ctx.font = `bold 28px "${FONT_NAME}"`;
   ctx.textAlign = 'center';
   ctx.fillText('প্রচারে:', 165, footerY + 48);
 
   ctx.textAlign = 'left';
-  ctx.font = `bold 44px "${FONT_NAME}"`;
+  ctx.font = `bold 52px "${FONT_NAME}"`;
   drawStrokedText(ctx, formData.name, 250, footerY + 56, '#FFD700', '#000000', 6);
 
-  ctx.font = `bold 26px "${FONT_NAME}"`;
+  ctx.font = `bold 34px "${FONT_NAME}"`;
   const infoLine = `${formData.designation} | ${formData.party}`;
   drawStrokedText(ctx, infoLine, 100, footerY + 112, '#FFFFFF', '#000000', 5);
   drawStrokedText(ctx, formData.location, 100, footerY + 154, '#D8C9A8', '#000000', 4);
